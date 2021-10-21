@@ -1,0 +1,95 @@
+﻿create user 'ania'@'localhost' identified by 'zaq1'  => tworzenie użytkownika wraz z hasłem
+create user 'tomek'@'%'  =>  dowolny host bez hasła
+
+set password for 'tomek'@'%' = password('zaq1');  =>  dodawanie hasła po stworzeniu użytkownika
+------------------------------------------------------------------------------------------------
+
+
+
+
+=====PRZYZNAWANIE UPRAWNIEŃ=====
+
+grant uprawnienia
+on obiekt
+to użytkownik
+
+/* ddl - create, drop, alter struktura
+   dcl - grant, revoke, deny użytkownik
+   dml - insert, update, delete rekordy
+   dql - select */
+   
+usage  => zwykły użytkownik
+with grant option  => możliwość przekazywania uprawnień
+all privileges  => administrator
+
+=====PRZYZNAWANIE UPRAWNIEŃ=====
+
+
+grant create view, update, drop
+on `firma`.*
+to 'ania'@'localhost'
+
+
+show grants for 'ania'@'localhost'  => pokazywanie uprawnień
+
+
+grant insert(`nazwa oceny`)
+on `firma`.`oceny`
+to 'ania'@'localhost'
+with grant option
+
+
+=====ODBIERANIE UPRAWNIEŃ=====
+
+revoke uprawnienia
+on obiekt
+from user
+
+=====ODBIERANIE UPRAWNIEŃ=====
+
+
+revoke create view
+on `firma`.*
+from 'ania'@'localhost'
+
+
+
+
+
+
+
+
+zad 5.1
+select `wykroczenia`.`nazwa`, count(`mandaty`.`kod_wyk`) as `liczba` from `wykroczenia`
+inner join `mandaty` on `wykroczenia`.`kod_wyk` = `mandaty`.`kod_wyk`
+group by `mandaty`.`kod_wyk`  
+ORDER BY `liczba` desc
+limit 1
+
+zad 5.2
+select `kierowcy`.`pesel`, sum(`wykroczenia`.`punkty`) as `ilosc pkt` from `kierowcy`
+inner join `mandaty` on `kierowcy`.`pesel`=`mandaty`.`pesel`
+inner join `wykroczenia` on `mandaty`.`kod_wyk`=`wykroczenia`.`kod_wyk`
+where `kierowcy`.`data_prawa_jazdy` BETWEEN '2013-01-01' AND '2013-12-31'
+group by `kierowcy`.`pesel`
+having `ilosc pkt`>20
+order by `ilosc pkt` desc
+
+zad 5.3
+select `wykroczenia`.`nazwa` from `wykroczenia`
+where `wykroczenia`.`nazwa` like '%naruszenie zakazu%'
+
+zad 5.4
+select substr(`mandaty`.`data_wyk`, 6, 2) as `miesiac`, sum(`wykroczenia`.`mandat`) as `kwota`, count(`wykroczenia`.`kod_wyk`) as `liczba` from `wykroczenia`
+inner join `mandaty` on `wykroczenia`.`kod_wyk`=`mandaty`.`kod_wyk`
+group by `miesiac`
+order by `liczba` asc
+
+zad 5.5
+select `kierowcy`.`miasto` from `kierowcy`
+left join `mandaty`
+using(`pesel`)
+where `mandaty`.`pesel` is null
+group by `kierowcy`.`miasto`
+order by count(`kierowcy`.`pesel`) desc, `kierowcy`.`miasto` asc
+limit 1
